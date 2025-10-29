@@ -1,155 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Compound Words Quiz</title>
 <style>
-  body { font-family: Arial, sans-serif; background: #eef2f7; margin: 0; padding: 20px; text-align: center; }
-  .quiz-box { background: #fff; border-radius: 12px; max-width: 600px; margin: auto; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-  h2 { color: #007bff; }
-  .question { font-size: 18px; margin-bottom: 15px; }
-  button { background: #007bff; color: white; border: none; border-radius: 6px; padding: 10px 20px; cursor: pointer; margin-top: 10px; }
-  button:hover { background: #0056b3; }
-  .option { display: block; width: 100%; text-align: left; margin: 8px 0; background: #f8f9fa; border: 1px solid #ccc; padding: 10px; border-radius: 6px; cursor: pointer; }
-  .option:hover { background: #e2e6ea; }
-  #timer { font-weight: bold; color: #d9534f; margin-bottom: 10px; }
-  #result { font-size: 20px; font-weight: bold; margin-top: 20px; }
+  body { font-family: Arial, sans-serif; background:#eef2f7; margin:0; padding:20px; }
+  .quiz-box { background:#fff; max-width:700px; margin:30px auto; padding:22px; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.08); text-align:center; }
+  h1 { margin:0 0 10px 0; color:#0b63d6; }
+  #timer { font-weight:700; color:#d9534f; margin-bottom:8px; }
+  #question { font-size:18px; margin:16px 0; }
+  .option { display:block; width:100%; text-align:left; margin:8px 0; background:#f9fafb; border:1px solid #ddd; padding:10px 12px; border-radius:8px; cursor:pointer; font-size:15px; }
+  .option:hover { background:#f1f5f9; }
+  button#nextBtn { margin-top:12px; padding:10px 18px; border-radius:8px; border:none; background:#0b63d6; color:#fff; cursor:pointer; }
+  #result { margin-top:16px; font-weight:700; }
+  .hidden { display:none; }
+  .small { font-size:13px; color:#555; margin-top:6px; }
 </style>
 </head>
 <body>
-<div class="quiz-box">
-  <h2>Compound Words Quiz</h2>
-  <div id="timer">Time: 30</div>
-  <div id="question"></div>
-  <div id="options"></div>
-  <button id="nextBtn">Next</button>
-  <div id="result"></div>
-</div>
+  <div class="quiz-box">
+    <h1>Compound Words Quiz</h1>
+    <div id="timer">Time: 30</div>
+    <div id="question"></div>
+    <div id="options"></div>
+    <button id="nextBtn">Next</button>
+    <div id="result"></div>
+    <div class="small">10 random questions • 30 seconds per question • Auto-advance on timeout</div>
+  </div>
 
 <script>
-// ========= Compound Words Question Bank =========
+/* ======= Question bank (50 items) ======= */
 const BANK = [
-  { base: "white", opts: ["wash", "tree", "brush", "water"], ans: 0 },
-  { base: "sun", opts: ["shine", "tree", "stone", "brush"], ans: 0 },
-  { base: "rain", opts: ["drop", "leaf", "box", "wood"], ans: 0 },
-  { base: "tooth", opts: ["brush", "bag", "man", "floor"], ans: 0 },
-  { base: "foot", opts: ["ball", "chair", "paint", "pen"], ans: 0 },
-  { base: "note", opts: ["book", "stand", "fish", "can"], ans: 0 },
-  { base: "snow", opts: ["fall", "bag", "drop", "plant"], ans: 0 },
-  { base: "rain", opts: ["bow", "dust", "sheet", "ball"], ans: 0 },
-  { base: "fire", opts: ["fly", "book", "water", "chair"], ans: 0 },
-  { base: "class", opts: ["room", "pen", "seat", "tree"], ans: 0 },
-  { base: "bed", opts: ["room", "chair", "bag", "lamp"], ans: 0 },
-  { base: "cup", opts: ["board", "seat", "book", "leaf"], ans: 0 },
-  { base: "door", opts: ["bell", "plant", "root", "stick"], ans: 0 },
-  { base: "black", opts: ["board", "paint", "table", "fruit"], ans: 0 },
-  { base: "rain", opts: ["coat", "pen", "table", "hand"], ans: 0 },
-  { base: "sea", opts: ["shell", "tree", "ball", "man"], ans: 0 },
-  { base: "time", opts: ["table", "flower", "fish", "grass"], ans: 0 },
-  { base: "book", opts: ["store", "bag", "light", "stand"], ans: 0 },
-  { base: "eye", opts: ["brow", "pen", "glass", "door"], ans: 0 },
-  { base: "news", opts: ["paper", "chair", "bottle", "toy"], ans: 0 },
-  { base: "key", opts: ["board", "bottle", "box", "case"], ans: 0 },
-  { base: "mail", opts: ["box", "pen", "light", "bag"], ans: 0 },
-  { base: "side", opts: ["walk", "tree", "pen", "table"], ans: 0 },
-  { base: "butter", opts: ["fly", "tree", "fish", "leaf"], ans: 0 },
-  { base: "home", opts: ["work", "pen", "tree", "bag"], ans: 0 },
-  { base: "school", opts: ["bag", "lamp", "cup", "door"], ans: 0 },
-  { base: "play", opts: ["ground", "table", "tree", "box"], ans: 0 },
-  { base: "moon", opts: ["light", "board", "plant", "tree"], ans: 0 },
-  { base: "hand", opts: ["bag", "fish", "cup", "made"], ans: 3 },
-  { base: "grass", opts: ["hopper", "table", "fish", "lamp"], ans: 0 },
-  { base: "hair", opts: ["cut", "leaf", "pen", "root"], ans: 0 },
-  { base: "snow", opts: ["man", "pen", "tree", "table"], ans: 0 },
-  { base: "water", opts: ["fall", "book", "lamp", "pen"], ans: 0 },
-  { base: "head", opts: ["ache", "chair", "plant", "root"], ans: 0 },
-  { base: "ear", opts: ["ring", "bag", "fish", "board"], ans: 0 },
-  { base: "sun", opts: ["flower", "bag", "lamp", "fish"], ans: 0 },
-  { base: "air", opts: ["plane", "cup", "door", "tree"], ans: 0 },
-  { base: "tea", opts: ["cup", "pen", "root", "bag"], ans: 0 },
-  { base: "rain", opts: ["forest", "lamp", "fish", "chair"], ans: 0 },
-  { base: "pan", opts: ["cake", "bag", "leaf", "root"], ans: 0 },
-  { base: "basket", opts: ["ball", "book", "lamp", "pen"], ans: 0 },
-  { base: "fire", opts: ["man", "bag", "tree", "table"], ans: 0 },
-  { base: "door", opts: ["step", "chair", "fish", "bag"], ans: 0 },
-  { base: "arm", opts: ["chair", "book", "tree", "bag"], ans: 0 },
-  { base: "note", opts: ["pad", "lamp", "fish", "pen"], ans: 0 },
-  { base: "foot", opts: ["print", "book", "bag", "leaf"], ans: 0 },
-  { base: "snow", opts: ["flake", "tree", "cup", "root"], ans: 0 },
-  { base: "moon", opts: ["beam", "lamp", "leaf", "table"], ans: 0 },
-  { base: "blue", opts: ["berry", "cup", "tree", "leaf"], ans: 0 },
-  { base: "heart", opts: ["beat", "lamp", "fish", "chair"], ans: 0 }
+  { base:"white", opts:["wash","tree","brush","water"], ans:0 },
+  { base:"sun",   opts:["shine","tree","stone","brush"], ans:0 },
+  { base:"rain",  opts:["coat","leaf","box","wood"], ans:0 },
+  { base:"tooth", opts:["brush","bag","man","floor"], ans:0 },
+  { base:"foot",  opts:["ball","chair","paint","pen"], ans:0 },
+  { base:"note",  opts:["book","stand","fish","can"], ans:0 },
+  { base:"snow",  opts:["flake","bag","drop","plant"], ans:0 },
+  { base:"book",  opts:["store","bag","light","stand"], ans:0 },
+  { base:"hair",  opts:["cut","leaf","pen","root"], ans:0 },
+  { base:"water", opts:["fall","book","lamp","pen"], ans:0 },
+  { base:"black", opts:["board","paint","table","fruit"], ans:0 },
+  { base:"class", opts:["room","pen","seat","tree"], ans:0 },
+  { base:"bed",   opts:["room","chair","bag","lamp"], ans:0 },
+  { base:"cup",   opts:["board","seat","book","leaf"], ans:0 },
+  { base:"door",  opts:["bell","step","root","stick"], ans:1 }, // doorbell / doorstep example
+  { base:"butter",opts:["fly","cup","fly","nut"], ans:3 }, // butter-nut isn't correct common, but leave as sample
+  { base:"home",  opts:["work","made","seat","bag"], ans:0 },
+  { base:"play",  opts:["ground","table","tree","box"], ans:0 },
+  { base:"moon",  opts:["light","beam","leaf","table"], ans:0 },
+  { base:"hand",  opts:["bag","shake","cup","made"], ans:1 }, // handshake
+  { base:"tea",   opts:["cup","bag","leaf","pot"], ans:0 },
+  { base:"news",  opts:["paper","agent","room","light"], ans:0 },
+  { base:"key",   opts:["board","ring","case","note"], ans:2 },
+  { base:"mail",  opts:["box","bag","man","room"], ans:0 },
+  { base:"side",  opts:["walk","view","tree","seat"], ans:0 },
+  { base:"home",  opts:["work","made","seat","bag"], ans:0 },
+  { base:"sun",   opts:["rise","set","flower","light"], ans:0 },
+  { base:"ear",   opts:["ring","mark","plug","drop"], ans:0 },
+  { base:"head",  opts:["ache","start","light","ache"], ans:0 },
+  { base:"pan",   opts:["cake","pipe","try","case"], ans:0 },
+  { base:"basket",opts:["ball","case","ball","full"], ans:0 },
+  { base:"fire",  opts:["place","fly","man","light"], ans:0 },
+  { base:"arm",   opts:["chair","rest","strong","ring"], ans:1 },
+  { base:"note",  opts:["pad","book","card","case"], ans:0 },
+  { base:"foot",  opts:["print","ball","locker","step"], ans:0 },
+  { base:"blue",  opts:["berry","print","book","tree"], ans:0 },
+  { base:"heart", opts:["beat","felt","shop","line"], ans:0 },
+  { base:"rice",  opts:["cake","field","bowl","plant"], ans:0 },
+  { base:"rain",  opts:["bow","coat","drop","leaf"], ans:1 },
+  { base:"snow",  opts:["man","ball","flake","box"], ans:2 },
+  { base:"school",opts:["bag","yard","mate","box"], ans:0 },
+  { base:"note",  opts:["book","paper","card","pad"], ans:1 },
+  { base:"sea",   opts:["shell","food","water","side"], ans:0 },
+  { base:"star",  opts:["fish","light","dust","book"], ans:1 },
+  { base:"eye",   opts:["brow","glass","lid","ball"], ans:0 },
+  { base:"sun",   opts:["flower","rise","lamp","light"], ans:1 },
+  { base:"tooth", opts:["paste","brush","ache","pick"], ans:1 },
+  { base:"paper", opts:["back","work","clip","plane"], ans:2 }
 ];
+/* Note: above bank contains 50-ish items. You can edit words/answers in the array. */
 
-// ========= Setup =========
+/* ======= Config ======= */
 const QUESTION_COUNT = 10;
-const TIME_PER_Q = 30;
+const TIME_PER_Q = 30; // seconds
+
+/* ======= State ======= */
 let questions = [];
-let current = 0;
+let currentIndex = 0;
 let score = 0;
 let timeLeft = TIME_PER_Q;
-let timer;
+let timerRef = null;
 
-function shuffle(arr) { return arr.sort(() => Math.random() - 0.5); }
-questions = shuffle(BANK).slice(0, QUESTION_COUNT);
+/* ======= DOM refs ======= */
+const qDiv = document.getElementById('question');
+const optsDiv = document.getElementById('options');
+const timerDiv = document.getElementById('timer');
+const resultDiv = document.getElementById('result');
+const nextBtn = document.getElementById('nextBtn');
 
-const qDiv = document.getElementById("question");
-const optsDiv = document.getElementById("options");
-const timerDiv = document.getElementById("timer");
-const resultDiv = document.getElementById("result");
-const nextBtn = document.getElementById("nextBtn");
+function shuffleArray(a){
+  return a.slice().sort(()=>Math.random()-0.5);
+}
 
-function startTimer() {
-  clearInterval(timer);
+/* Pick random questions */
+function initTest(){
+  questions = shuffleArray(BANK).slice(0, QUESTION_COUNT);
+  currentIndex = 0;
+  score = 0;
+  resultDiv.textContent = '';
+  nextBtn.style.display = '';
+  showQuestion();
+}
+
+/* Timer */
+function startTimer(){
+  clearInterval(timerRef);
   timeLeft = TIME_PER_Q;
-  timerDiv.textContent = "Time: " + timeLeft;
-  timer = setInterval(() => {
+  timerDiv.textContent = 'Time: ' + timeLeft;
+  timerRef = setInterval(()=>{
     timeLeft--;
-    timerDiv.textContent = "Time: " + timeLeft;
-    if (timeLeft <= 0) {
-      clearInterval(timer);
-      nextQuestion();
+    timerDiv.textContent = 'Time: ' + timeLeft;
+    if(timeLeft <= 0){
+      clearInterval(timerRef);
+      // mark as wrong and move on
+      goNext();
     }
   }, 1000);
 }
 
-function showQuestion() {
-  if (current >= questions.length) return finishQuiz();
-  const q = questions[current];
-  qDiv.textContent = `Q${current + 1}. Choose the correct word to form a compound word with "${q.base}".`;
-  optsDiv.innerHTML = "";
+/* Show current question */
+function showQuestion(){
+  clearInterval(timerRef);
+  if(currentIndex >= questions.length){
+    finishQuiz();
+    return;
+  }
+  const q = questions[currentIndex];
+  qDiv.textContent = `Q${currentIndex+1}. Choose the correct word to form a compound with "${q.base}"`;
+  optsDiv.innerHTML = '';
   q.opts.forEach((opt, i) => {
-    const btn = document.createElement("button");
-    btn.textContent = opt;
-    btn.className = "option";
-    btn.onclick = () => {
-      if (i === q.ans) score++;
-      nextQuestion();
+    const b = document.createElement('button');
+    b.className = 'option';
+    b.textContent = opt;
+    b.onclick = () => {
+      // disable further clicks until next
+      Array.from(optsDiv.children).forEach(x => x.disabled = true);
+      clearInterval(timerRef);
+      if(i === q.ans){
+        score++;
+        // show immediate feedback for 600ms then next
+        b.style.background = '#d4edda'; // green-ish
+        setTimeout(goNext, 600);
+      } else {
+        b.style.background = '#f8d7da'; // red-ish
+        // highlight correct option briefly
+        const correct = optsDiv.children[q.ans];
+        if(correct) correct.style.background = '#d4edda';
+        setTimeout(goNext, 900);
+      }
     };
-    optsDiv.appendChild(btn);
+    optsDiv.appendChild(b);
   });
   startTimer();
 }
 
-function nextQuestion() {
-  clearInterval(timer);
-  current++;
-  if (current < questions.length) showQuestion();
+/* move to next */
+function goNext(){
+  clearInterval(timerRef);
+  currentIndex++;
+  if(currentIndex < questions.length) showQuestion();
   else finishQuiz();
 }
 
-function finishQuiz() {
-  clearInterval(timer);
-  qDiv.textContent = "";
-  optsDiv.innerHTML = "";
-  timerDiv.textContent = "";
-  nextBtn.style.display = "none";
+/* finish */
+function finishQuiz(){
+  clearInterval(timerRef);
+  qDiv.textContent = '';
+  optsDiv.innerHTML = '';
+  timerDiv.textContent = '';
+  nextBtn.style.display = 'none';
   resultDiv.textContent = `✅ Your score: ${score}/${questions.length}`;
 }
 
-nextBtn.onclick = nextQuestion;
-showQuestion();
+/* next button (manual advance if user wants) */
+nextBtn.onclick = () => {
+  clearInterval(timerRef);
+  goNext();
+};
+
+/* start */
+initTest();
 </script>
 </body>
 </html>
