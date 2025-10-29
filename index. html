@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compound Words Quiz</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #eef2f7; margin: 0; padding: 20px; text-align: center; }
+  .quiz-box { background: #fff; border-radius: 12px; max-width: 600px; margin: auto; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+  h2 { color: #007bff; }
+  .question { font-size: 18px; margin-bottom: 15px; }
+  button { background: #007bff; color: white; border: none; border-radius: 6px; padding: 10px 20px; cursor: pointer; margin-top: 10px; }
+  button:hover { background: #0056b3; }
+  .option { display: block; width: 100%; text-align: left; margin: 8px 0; background: #f8f9fa; border: 1px solid #ccc; padding: 10px; border-radius: 6px; cursor: pointer; }
+  .option:hover { background: #e2e6ea; }
+  #timer { font-weight: bold; color: #d9534f; margin-bottom: 10px; }
+  #result { font-size: 20px; font-weight: bold; margin-top: 20px; }
+</style>
+</head>
+<body>
+<div class="quiz-box">
+  <h2>Compound Words Quiz</h2>
+  <div id="timer">Time: 30</div>
+  <div id="question"></div>
+  <div id="options"></div>
+  <button id="nextBtn">Next</button>
+  <div id="result"></div>
+</div>
+
+<script>
+// ========= Compound Words Question Bank =========
+const BANK = [
+  { base: "white", opts: ["wash", "tree", "brush", "water"], ans: 0 },
+  { base: "sun", opts: ["shine", "tree", "stone", "brush"], ans: 0 },
+  { base: "rain", opts: ["drop", "leaf", "box", "wood"], ans: 0 },
+  { base: "tooth", opts: ["brush", "bag", "man", "floor"], ans: 0 },
+  { base: "foot", opts: ["ball", "chair", "paint", "pen"], ans: 0 },
+  { base: "note", opts: ["book", "stand", "fish", "can"], ans: 0 },
+  { base: "snow", opts: ["fall", "bag", "drop", "plant"], ans: 0 },
+  { base: "rain", opts: ["bow", "dust", "sheet", "ball"], ans: 0 },
+  { base: "fire", opts: ["fly", "book", "water", "chair"], ans: 0 },
+  { base: "class", opts: ["room", "pen", "seat", "tree"], ans: 0 },
+  { base: "bed", opts: ["room", "chair", "bag", "lamp"], ans: 0 },
+  { base: "cup", opts: ["board", "seat", "book", "leaf"], ans: 0 },
+  { base: "door", opts: ["bell", "plant", "root", "stick"], ans: 0 },
+  { base: "black", opts: ["board", "paint", "table", "fruit"], ans: 0 },
+  { base: "rain", opts: ["coat", "pen", "table", "hand"], ans: 0 },
+  { base: "sea", opts: ["shell", "tree", "ball", "man"], ans: 0 },
+  { base: "time", opts: ["table", "flower", "fish", "grass"], ans: 0 },
+  { base: "book", opts: ["store", "bag", "light", "stand"], ans: 0 },
+  { base: "eye", opts: ["brow", "pen", "glass", "door"], ans: 0 },
+  { base: "news", opts: ["paper", "chair", "bottle", "toy"], ans: 0 },
+  { base: "key", opts: ["board", "bottle", "box", "case"], ans: 0 },
+  { base: "mail", opts: ["box", "pen", "light", "bag"], ans: 0 },
+  { base: "side", opts: ["walk", "tree", "pen", "table"], ans: 0 },
+  { base: "butter", opts: ["fly", "tree", "fish", "leaf"], ans: 0 },
+  { base: "home", opts: ["work", "pen", "tree", "bag"], ans: 0 },
+  { base: "school", opts: ["bag", "lamp", "cup", "door"], ans: 0 },
+  { base: "play", opts: ["ground", "table", "tree", "box"], ans: 0 },
+  { base: "moon", opts: ["light", "board", "plant", "tree"], ans: 0 },
+  { base: "hand", opts: ["bag", "fish", "cup", "made"], ans: 3 },
+  { base: "grass", opts: ["hopper", "table", "fish", "lamp"], ans: 0 },
+  { base: "hair", opts: ["cut", "leaf", "pen", "root"], ans: 0 },
+  { base: "snow", opts: ["man", "pen", "tree", "table"], ans: 0 },
+  { base: "water", opts: ["fall", "book", "lamp", "pen"], ans: 0 },
+  { base: "head", opts: ["ache", "chair", "plant", "root"], ans: 0 },
+  { base: "ear", opts: ["ring", "bag", "fish", "board"], ans: 0 },
+  { base: "sun", opts: ["flower", "bag", "lamp", "fish"], ans: 0 },
+  { base: "air", opts: ["plane", "cup", "door", "tree"], ans: 0 },
+  { base: "tea", opts: ["cup", "pen", "root", "bag"], ans: 0 },
+  { base: "rain", opts: ["forest", "lamp", "fish", "chair"], ans: 0 },
+  { base: "pan", opts: ["cake", "bag", "leaf", "root"], ans: 0 },
+  { base: "basket", opts: ["ball", "book", "lamp", "pen"], ans: 0 },
+  { base: "fire", opts: ["man", "bag", "tree", "table"], ans: 0 },
+  { base: "door", opts: ["step", "chair", "fish", "bag"], ans: 0 },
+  { base: "arm", opts: ["chair", "book", "tree", "bag"], ans: 0 },
+  { base: "note", opts: ["pad", "lamp", "fish", "pen"], ans: 0 },
+  { base: "foot", opts: ["print", "book", "bag", "leaf"], ans: 0 },
+  { base: "snow", opts: ["flake", "tree", "cup", "root"], ans: 0 },
+  { base: "moon", opts: ["beam", "lamp", "leaf", "table"], ans: 0 },
+  { base: "blue", opts: ["berry", "cup", "tree", "leaf"], ans: 0 },
+  { base: "heart", opts: ["beat", "lamp", "fish", "chair"], ans: 0 }
+];
+
+// ========= Setup =========
+const QUESTION_COUNT = 10;
+const TIME_PER_Q = 30;
+let questions = [];
+let current = 0;
+let score = 0;
+let timeLeft = TIME_PER_Q;
+let timer;
+
+function shuffle(arr) { return arr.sort(() => Math.random() - 0.5); }
+questions = shuffle(BANK).slice(0, QUESTION_COUNT);
+
+const qDiv = document.getElementById("question");
+const optsDiv = document.getElementById("options");
+const timerDiv = document.getElementById("timer");
+const resultDiv = document.getElementById("result");
+const nextBtn = document.getElementById("nextBtn");
+
+function startTimer() {
+  clearInterval(timer);
+  timeLeft = TIME_PER_Q;
+  timerDiv.textContent = "Time: " + timeLeft;
+  timer = setInterval(() => {
+    timeLeft--;
+    timerDiv.textContent = "Time: " + timeLeft;
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      nextQuestion();
+    }
+  }, 1000);
+}
+
+function showQuestion() {
+  if (current >= questions.length) return finishQuiz();
+  const q = questions[current];
+  qDiv.textContent = `Q${current + 1}. Choose the correct word to form a compound word with "${q.base}".`;
+  optsDiv.innerHTML = "";
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.className = "option";
+    btn.onclick = () => {
+      if (i === q.ans) score++;
+      nextQuestion();
+    };
+    optsDiv.appendChild(btn);
+  });
+  startTimer();
+}
+
+function nextQuestion() {
+  clearInterval(timer);
+  current++;
+  if (current < questions.length) showQuestion();
+  else finishQuiz();
+}
+
+function finishQuiz() {
+  clearInterval(timer);
+  qDiv.textContent = "";
+  optsDiv.innerHTML = "";
+  timerDiv.textContent = "";
+  nextBtn.style.display = "none";
+  resultDiv.textContent = `✅ Your score: ${score}/${questions.length}`;
+}
+
+nextBtn.onclick = nextQuestion;
+showQuestion();
+</script>
+</body>
+</html>
